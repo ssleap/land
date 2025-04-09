@@ -18,10 +18,20 @@ def save_to_db(df, db_path="apt_trade.db", table_name="apt_trades"):
 
 
 
-
-
 def load_from_db(db_path="apt_trade.db", table_name="apt_trades"):
     conn = sqlite3.connect(db_path)
     df = pd.read_sql(f"SELECT * FROM {table_name}", conn)
     conn.close()
     return df
+
+
+
+def save_detail_to_db(df, db_path="apt_complex.db", table_name="apt_detail"):
+    if df.empty:
+        print("⛔ 저장할 데이터가 없습니다.")
+        return
+
+    conn = sqlite3.connect(db_path)
+    df.columns = df.columns.str.strip().str.replace(" ", "_").str.replace(r"[^\w]", "", regex=True)
+    df.to_sql(table_name, conn, if_exists='append', index=False)
+    conn.close()

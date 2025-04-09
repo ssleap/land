@@ -2,11 +2,8 @@ import requests
 import xml.etree.ElementTree as ET
 import pandas as pd
 
-
-
-
 def fetch_apt_trade_data(service_key, lawd_cd, deal_ym):
-    url = "https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev"
+    url = "http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade"
 
     params = {
         'LAWD_CD': lawd_cd,         # 지역코드: 서울=11110, 수원=41110 등
@@ -35,3 +32,33 @@ def fetch_apt_trade_data(service_key, lawd_cd, deal_ym):
         rows.append(row)
 
     return pd.DataFrame(rows)
+
+
+
+def fetch_apt_detail_info(service_key, kaptCode):
+    url = "https://apis.data.go.kr/1611000/AptListService2/getAphusDtlInfo"
+
+    params = {
+        "serviceKey": service_key,
+        "kaptCode": kaptCode
+    }
+
+    response = requests.get(url, params=params)
+    tree = ET.fromstring(response.content)
+
+    item = tree.find(".//item")
+    if item is None:
+        return pd.DataFrame()
+
+    row = {
+        "단지코드": kaptCode,
+        "전기방식": item.findtext("elecType"),
+        "가스방식": item.findtext("gasType"),
+        "난방방식": item.findtext("heatType"),
+        "구조": item.findtext("kaptUsedStrctCd"),
+        "주차대수": item.findtext("kaptdPcnt"),
+        "층수정보": item.findtext("kaptFloor"),
+        "엘리베이터유무": item.findtext("elvtYn")
+    }
+
+    return pd.DataFrame([row])
