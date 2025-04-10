@@ -1,15 +1,14 @@
-# landapi.py (V3 JSON 기반 최종 반영 버전)
+# landapi.py (V3 JSON 기반 + returnType=JSON 추가)
 import requests
 import pandas as pd
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # 1. 공동주택 기본 정보 (getAphusBassInfoV3)
 def fetch_apt_basic_info_v3(service_key, kaptCode):
     url = "https://apis.data.go.kr/1611000/AptBasisInfoServiceV3/getAphusBassInfoV3"
     params = {
         "serviceKey": service_key,
-        "kaptCode": kaptCode
+        "kaptCode": kaptCode,
+        "returnType": "JSON"
     }
     response = requests.get(url, params=params, verify=False)
     data = response.json()
@@ -24,7 +23,8 @@ def fetch_apt_detail_info_v3(service_key, kaptCode):
     url = "https://apis.data.go.kr/1611000/AptBasisInfoServiceV3/getAphusDtlInfoV3"
     params = {
         "serviceKey": service_key,
-        "kaptCode": kaptCode
+        "kaptCode": kaptCode,
+        "returnType": "JSON"
     }
     response = requests.get(url, params=params, verify=False)
     data = response.json()
@@ -40,7 +40,8 @@ def fetch_apt_trade_detail_v3(service_key, lawd_cd, deal_ymd):
     params = {
         "serviceKey": service_key,
         "LAWD_CD": lawd_cd,
-        "DEAL_YMD": deal_ymd
+        "DEAL_YMD": deal_ymd,
+        "returnType": "XML"
     }
     response = requests.get(url, params=params, verify=False)
     data = response.json()
@@ -58,7 +59,8 @@ def fetch_apt_list_by_sigungu_v3(service_key, sigunguCd, bjdongCd):
     params = {
         "serviceKey": service_key,
         "sigunguCd": sigunguCd,
-        "bjdongCd": bjdongCd
+        "bjdongCd": bjdongCd,
+        "returnType": "JSON"
     }
     response = requests.get(url, params=params, verify=False)
     data = response.json()
@@ -72,7 +74,8 @@ def fetch_apt_list_by_sigungu_v3(service_key, sigunguCd, bjdongCd):
 def fetch_total_apt_list_v3(service_key):
     url = "https://apis.data.go.kr/1611000/AptListService3/getTotalAptList3"
     params = {
-        "serviceKey": service_key
+        "serviceKey": service_key,
+        "returnType": "JSON"
     }
     response = requests.get(url, params=params, verify=False)
     data = response.json()
