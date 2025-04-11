@@ -2,7 +2,7 @@ from landapi import fetch_apt_trade_data, fetch_apt_detail_info
 from sqlitehandler import load_from_db, save_to_db, save_detail_to_db
 
 # === 설정 ===
-service_key = "여기에_발급받은_API키"  # URL 디코딩된 형태로
+service_key = "Q7uO9oY26rqekbCW6lMPeBjSLkFlIGRWJr8Px/Kwd1OspHoWhYGIbUN1SgH7l8ic1swKPDoYqN/mYAPTuL6vnA=="  # URL 디코딩된 형태로
 lawd_cd = "11110"     # 서울특별시 종로구
 deal_ym = "202503"    # 2025년 3월
 kaptCode = "A00023456"  # 예: 단지 코드 (기본정보 API로 미리 얻어야 함)
@@ -29,3 +29,12 @@ try:
         print("[단지상세] DB 저장 완료")
 except Exception as e:
     print("❌ 단지 상세정보 처리 중 오류 발생:", e)
+
+    """
+    1. 요일
+    2. 시간
+    3. 장소
+    4. 홀이 얼마나 이쁜지
+    5. 우월감
+    6. 밥
+    """
