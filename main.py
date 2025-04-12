@@ -77,7 +77,7 @@ def create_and_save_apt_basic_info():
             basic_df = fetch_apt_basic_info_v3(service_key, row['kaptCode'])
             if not basic_df.empty:
                 basic_list.append(basic_df)
-            time.sleep(0.2)
+            # time.sleep(0.2)
         except Exception as e:
             print(f"❌ 기본정보 실패: {row['kaptCode']}, 오류: {e}")
 
@@ -107,7 +107,7 @@ def create_and_save_apt_complex_dtl():
         save_to_db(all_detail_df, table_name="apt_detail")
         print("✅ 상세정보 저장 완료")
 
-if __name__ == "__main__":
+def run_trade():
     for deal_ym in sale_mon:
         print(f"====================== {deal_ym}월 수집 시작 ======================")
         for lawd in seoul_lawd:
@@ -120,3 +120,7 @@ if __name__ == "__main__":
             create_and_save_trade_detail(lawd_cd=lawd, deal_ymd=deal_ym)
             create_and_save_rent_trade_detail(lawd_cd=lawd, deal_ymd=deal_ym)
         print(f"====================== {deal_ym}월 수집 완료 ======================")
+
+
+if __name__ == "__main__":
+    create_and_save_apt_basic_info()
