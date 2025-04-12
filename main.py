@@ -1,40 +1,58 @@
-from landapi import fetch_apt_trade_data, fetch_apt_detail_info
-from sqlitehandler import load_from_db, save_to_db, save_detail_to_db
+# main.py
+from landapi import (
+    fetch_all_total_apt_list,
+    fetch_apt_basic_info_v3,
+    fetch_apt_detail_info_v3,
+    fetch_apt_trade_detail_v3
+)
+from sqlitehandler import save_to_db, reset_table_schema
+import time
+import pandas as pd
 
 # === 설정 ===
-service_key = "Q7uO9oY26rqekbCW6lMPeBjSLkFlIGRWJr8Px/Kwd1OspHoWhYGIbUN1SgH7l8ic1swKPDoYqN/mYAPTuL6vnA=="  # URL 디코딩된 형태로
-lawd_cd = "11110"     # 서울특별시 종로구
-deal_ym = "202503"    # 2025년 3월
-kaptCode = "A00023456"  # 예: 단지 코드 (기본정보 API로 미리 얻어야 함)
+service_key = "Q7uO9oY26rqekbCW6lMPeBjSLkFlIGRWJr8Px/Kwd1OspHoWhYGIbUN1SgH7l8ic1swKPDoYqN/mYAPTuL6vnA=="
+deal_ymd = "202503"  # 예시: 2025년 3월
+lawd_cd = "41110"     # 예시: 수원시
 
-# === 매매 실거래가 수집 및 저장 ===
-try:
-    trade_df = fetch_apt_trade_data(service_key, lawd_cd, deal_ym)
-    print(f"[매매] 수집된 건수: {len(trade_df)}")
-    if not trade_df.empty:
-        save_to_db(trade_df)
-        print("[매매] DB 저장 완료")
-        print(load_from_db().head())
-    else:
-        print("[매매] 데이터가 비어 있음")
-except Exception as e:
-    print("❌ 매매 데이터 처리 중 오류 발생:", e)
+# === 1단계: 전국 단지 목록 수집 ===
+apt_list_df = fetch_all_total_apt_list(service_key)
+reset_table_schema(apt_list_df, table_name="apt_list")
 
-# === 단지 상세정보 수집 및 저장 ===
-try:
-    detail_df = fetch_apt_detail_info(service_key, kaptCode)
-    print(f"[단지상세] 수집 결과:\n{detail_df}")
-    if not detail_df.empty:
-        save_detail_to_db(detail_df)
-        print("[단지상세] DB 저장 완료")
-except Exception as e:
-    print("❌ 단지 상세정보 처리 중 오류 발생:", e)
+# === 4단계: 실거래가 수집 (법정동 코드 기반) ===
+# try:
+#     trade_df = fetch_apt_trade_detail_v3(service_key, lawd_cd, deal_ymd)
+#     reset_table_schema(trade_df, table_name="apt_trade")
+# except Exception as e:
+#     print(f"❌ 실거래가 수집 실패: {e}")
 
-    """
-    1. 요일
-    2. 시간
-    3. 장소
-    4. 홀이 얼마나 이쁜지
-    5. 우월감
-    6. 밥
-    """
+# # === 2단계: 각 단지별 기본정보 수집 ===
+# basic_list = []
+# for idx, row in apt_list_df.iterrows():
+#     try:
+#         basic_df = fetch_apt_basic_info_v3(service_key, row['kaptCode'])
+#         if not basic_df.empty:
+#             basic_list.append(basic_df)
+#         time.sleep(0.2)
+#     except Exception as e:
+#         print(f"❌ 기본정보 실패: {row['kaptCode']} - {e}")
+
+# if basic_list:
+#     all_basic_df = pd.concat(basic_list, ignore_index=True)
+#     reset_table_schema(all_basic_df, table_name="apt_basic")
+
+# # === 3단계: 각 단지별 상세정보 수집 ===
+# detail_list = []
+# for idx, row in apt_list_df.iterrows():
+#     try:
+#         detail_df = fetch_apt_detail_info_v3(service_key, row['kaptCode'])
+#         if not detail_df.empty:
+#             detail_list.append(detail_df)
+#         time.sleep(0.2)
+#     except Exception as e:
+#         print(f"❌ 상세정보 실패: {row['kaptCode']} - {e}")
+
+# if detail_list:
+#     all_detail_df = pd.concat(detail_list, ignore_index=True)
+#     reset_table_schema(all_detail_df, table_name="apt_detail")
+
+
