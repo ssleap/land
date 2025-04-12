@@ -4,65 +4,73 @@ import pandas as pd
 import xml.etree.ElementTree as ET
 
 # 아파트 매매 실거래가 상세 자료
-def fetch_apt_trade_detail_v3(service_key, lawd_cd, deal_ymd):
+def fetch_apt_trade_detail_v3(service_key, lawd_cd, deal_ymd, num_of_rows=1000):
     url = "http://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev"
-    params = {
-        "serviceKey": service_key,
-        "LAWD_CD": lawd_cd,
-        "DEAL_YMD": deal_ymd,
-        "returnType": "XML"
-    }
+    all_rows = []
+    page_no = 1
 
-    response = requests.get(url, params=params, verify=False)
-    
-    try:
-        tree = ET.fromstring(response.content)
-        items = tree.findall(".//item")
-        rows = []
+    while True:
+        params = {
+            "serviceKey": service_key,
+            "LAWD_CD": lawd_cd,
+            "DEAL_YMD": deal_ymd,
+            "returnType": "XML",
+            "pageNo": page_no,
+            "numOfRows": num_of_rows
+        }
 
-        for item in items:
-            row = {
-                "sggCd": item.findtext("sggCd"),
-                "umdCd": item.findtext("umdCd"),
-                "landCd": item.findtext("landCd"),
-                "bonbun": item.findtext("bonbun"),
-                "bubun": item.findtext("bubun"),
-                "roadNm": item.findtext("roadNm"),
-                "roadNmSggCd": item.findtext("roadNmSggCd"),
-                "roadNmCd": item.findtext("roadNmCd"),
-                "roadNmSeq": item.findtext("roadNmSeq"),
-                "roadNmbCd": item.findtext("roadNmbCd"),
-                "roadNmBonbun": item.findtext("roadNmBonbun"),
-                "roadNmBubun": item.findtext("roadNmBubun"),
-                "umdNm": item.findtext("umdNm"),
-                "aptNm": item.findtext("aptNm"),
-                "jibun": item.findtext("jibun"),
-                "excluUseAr": item.findtext("excluUseAr"),
-                "dealYear": item.findtext("dealYear"),
-                "dealMonth": item.findtext("dealMonth"),
-                "dealDay": item.findtext("dealDay"),
-                "dealAmount": item.findtext("dealAmount"),
-                "floor": item.findtext("floor"),
-                "buildYear": item.findtext("buildYear"),
-                "aptSeq": item.findtext("aptSeq"),
-                "cdealType": item.findtext("cdealType"),
-                "cdealDay": item.findtext("cdealDay"),
-                "dealingGbn": item.findtext("dealingGbn"),
-                "estateAgentSggNm": item.findtext("estateAgentSggNm"),
-                "rgstDate": item.findtext("rgstDate"),
-                "aptDong": item.findtext("aptDong"),
-                "slerGbn": item.findtext("slerGbn"),
-                "buyerGbn": item.findtext("buyerGbn"),
-                "landLeaseholdGbn": item.findtext("landLeaseholdGbn"),
-            }
-            rows.append(row)
+        response = requests.get(url, params=params, verify=False)
 
-        return pd.DataFrame(rows)
-    
-    except ET.ParseError as e:
-        print("❌ XML 파싱 오류:", e)
-        return pd.DataFrame()
+        try:
+            tree = ET.fromstring(response.content)
+            items = tree.findall(".//item")
+            if not items:
+                break
 
+            for item in items:
+                row = {
+                    "sggCd": item.findtext("sggCd"),
+                    "umdCd": item.findtext("umdCd"),
+                    "landCd": item.findtext("landCd"),
+                    "bonbun": item.findtext("bonbun"),
+                    "bubun": item.findtext("bubun"),
+                    "roadNm": item.findtext("roadNm"),
+                    "roadNmSggCd": item.findtext("roadNmSggCd"),
+                    "roadNmCd": item.findtext("roadNmCd"),
+                    "roadNmSeq": item.findtext("roadNmSeq"),
+                    "roadNmbCd": item.findtext("roadNmbCd"),
+                    "roadNmBonbun": item.findtext("roadNmBonbun"),
+                    "roadNmBubun": item.findtext("roadNmBubun"),
+                    "umdNm": item.findtext("umdNm"),
+                    "aptNm": item.findtext("aptNm"),
+                    "jibun": item.findtext("jibun"),
+                    "excluUseAr": item.findtext("excluUseAr"),
+                    "dealYear": item.findtext("dealYear"),
+                    "dealMonth": item.findtext("dealMonth"),
+                    "dealDay": item.findtext("dealDay"),
+                    "dealAmount": item.findtext("dealAmount"),
+                    "floor": item.findtext("floor"),
+                    "buildYear": item.findtext("buildYear"),
+                    "aptSeq": item.findtext("aptSeq"),
+                    "cdealType": item.findtext("cdealType"),
+                    "cdealDay": item.findtext("cdealDay"),
+                    "dealingGbn": item.findtext("dealingGbn"),
+                    "estateAgentSggNm": item.findtext("estateAgentSggNm"),
+                    "rgstDate": item.findtext("rgstDate"),
+                    "aptDong": item.findtext("aptDong"),
+                    "slerGbn": item.findtext("slerGbn"),
+                    "buyerGbn": item.findtext("buyerGbn"),
+                    "landLeaseholdGbn": item.findtext("landLeaseholdGbn")
+                }
+                all_rows.append(row)
+
+            page_no += 1
+
+        except ET.ParseError as e:
+            print("❌ XML 파싱 오류:", e)
+            break
+
+    return pd.DataFrame(all_rows)
 
 # 5. 전국 단지 목록 전체 조회 (getTotalAptList3)
 def fetch_all_total_apt_list(service_key):
@@ -99,7 +107,6 @@ def fetch_apt_rent_data_v3(service_key, lawd_cd, deal_ymd):
         "DEAL_YMD": deal_ymd,
         "returnType": "XML"
     }
-
     response = requests.get(url, params=params, verify=False)
     try:
         tree = ET.fromstring(response.content)

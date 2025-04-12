@@ -3,6 +3,7 @@ import sqlite3
 import pandas as pd
 
 
+
 def save_to_db(df, db_path="apt_data.db", table_name="apt_data"):
     if df.empty:
         print(f"⛔ [{table_name}] 저장할 데이터가 없습니다.")
