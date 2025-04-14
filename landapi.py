@@ -145,7 +145,7 @@ def fetch_apt_rent_data_v3(service_key, lawd_cd, deal_ymd):
 ################## 이 이하는 아직 쓸모없는 코드 #####################
 # 1. 공동주택 기본 정보 (getAphusBassInfoV3)
 def fetch_apt_basic_info_v3(service_key, kaptCode):
-    url = "http://apis.data.go.kr/1611000/AptBasisInfoServiceV3/getAphusBassInfoV3"
+    url = "http://apis.data.go.kr/1613000/AptBasisInfoServiceV3/getAphusBassInfoV3"
     params = {
         "serviceKey": service_key,
         "kaptCode": kaptCode,
@@ -153,7 +153,7 @@ def fetch_apt_basic_info_v3(service_key, kaptCode):
     }
     response = requests.get(url, params=params, verify=False)
     data = response.json()
-    item = data.get("body", {}).get("item")
+    item = data.get("response", {}).get("body", {}).get("item", {})
     if not item:
         return pd.DataFrame()
     return pd.DataFrame([item])
@@ -161,7 +161,7 @@ def fetch_apt_basic_info_v3(service_key, kaptCode):
 
 # 2. 공동주택 상세 정보 (getAphusDtlInfoV3)
 def fetch_apt_detail_info_v3(service_key, kaptCode):
-    url = "http://apis.data.go.kr/1611000/AptBasisInfoServiceV3/getAphusDtlInfoV3"
+    url = "http://apis.data.go.kr/1613000/AptBasisInfoServiceV3/getAphusDtlInfoV3"
     params = {
         "serviceKey": service_key,
         "kaptCode": kaptCode,

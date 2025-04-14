@@ -10,6 +10,8 @@ from sqlitehandler import (
     save_to_db, 
     reset_table_schema, 
     load_from_db,
+    merge_and_make_table_to_csv,
+    export_all_tables_to_csv,
 )
 
 import time
@@ -36,6 +38,8 @@ incheon_lawd = [28110, 28140, 28177, 28185, 28200, 28237, 28245, 28260,
                 28710, 28720]
 
 lawd_central = [11, 41, 28]
+
+lawd_central_str = ['11', '41', '28']
 
 sale_mon = [202501, 202502, 202503]
 
@@ -70,11 +74,13 @@ def create_and_save_rent_trade_detail(lawd_cd, deal_ymd):
 def create_and_save_apt_basic_info():
     print("📥 기본정보 수집 시작...")
     basic_list = []
-    for idx, row in apt_list_df.iterrows():
+    apt_list_df_central = apt_list_df[apt_list_df['bjdCode'].str[0:2].isin(lawd_central_str)]
+    for idx, row in apt_list_df_central.iterrows():
         try:
             if idx % 1000 == 0:
                 print(f"🔄 기본정보 진행: {idx} / {len(apt_list_df)}")
             basic_df = fetch_apt_basic_info_v3(service_key, row['kaptCode'])
+            
             if not basic_df.empty:
                 basic_list.append(basic_df)
             # time.sleep(0.2)
@@ -123,4 +129,6 @@ def run_trade():
 
 
 if __name__ == "__main__":
-    create_and_save_apt_basic_info()
+    # create_and_save_apt_basic_info()
+    # merge_and_make_table_to_csv()
+    export_all_tables_to_csv()
